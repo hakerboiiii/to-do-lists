@@ -1,4 +1,6 @@
 package cal335.lab.todolists.service;
+import cal335.lab.todolists.dto.TacheDTO;
+import cal335.lab.todolists.mapper.TacheMapper;
 import cal335.lab.todolists.modele.Tache;
 
 import java.io.IOException;
@@ -15,35 +17,6 @@ public class TacheService {
     public TacheService() {
         this.listeTaches = new ArrayList<>();
     }
-
-//    public void ajouterTache(HttpExchange echange) throws IOException {
-//        byte[] requestCorps = echange.getRequestBody().readAllBytes();
-//        String corps = new String(requestCorps);
-//        String[] parties = corps.split(",");
-//
-//        if(parties.length == 3){
-//            String nom = parties[0];
-//            String description = parties[1];
-//            Boolean estFait = Boolean.parseBoolean(parties[2]);
-//
-//            Tache tache = new Tache(nom, description, estFait);
-//            listeTaches.add(tache);
-//
-//            String reponse = "Tache ajoutée: " + tache;
-//            echange.sendResponseHeaders(201, reponse.getBytes().length);
-//
-//            try(OutputStream os = echange.getResponseBody()){
-//                os.write(reponse.getBytes());
-//            }
-//        }
-//        else{
-//            String reponse = "Invalide format. Utilise: Nom, Description, aFaire";
-//            echange.sendResponseHeaders(400, reponse.getBytes().length);
-//            try(OutputStream os = echange.getResponseBody()){
-//                os.write(reponse.getBytes());
-//            }
-//        }
-//    }
 
     public void rechercherTousLesTaches(HttpExchange echange) throws IOException {
         String reponse = listeTaches.toString();
@@ -74,5 +47,11 @@ public class TacheService {
                 os.write(reponseErreur.getBytes());
             }
         }
+    }
+
+    public Tache ajouterTachefromDTO(TacheDTO tacheDTO){
+        Tache tache = TacheMapper.toEntite(tacheDTO);
+        listeTaches.add(tache);
+        return tache;
     }
 }

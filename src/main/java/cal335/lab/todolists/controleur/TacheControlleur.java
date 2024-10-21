@@ -1,5 +1,9 @@
 package cal335.lab.todolists.controleur;
 
+import cal335.lab.todolists.dto.TacheDTO;
+import cal335.lab.todolists.mapper.TacheMapper;
+import cal335.lab.todolists.modele.Tache;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import cal335.lab.todolists.service.TacheService;
@@ -7,9 +11,11 @@ import java.io.IOException;
 
 public class TacheControlleur implements HttpHandler {
     private final TacheService service;
+    private final ObjectMapper objectMapper;
 
     public TacheControlleur(TacheService service) {
         this.service = service;
+        this.objectMapper = new ObjectMapper();
     }
 
 
@@ -28,5 +34,18 @@ public class TacheControlleur implements HttpHandler {
         else{
             echange.sendResponseHeaders(405, -1);
         }
+    }
+
+    public void getTaches(HttpExchange echange) throws IOException {
+        service.rechercherTousLesTaches(echange);
+    }
+    public void creerTache(HttpExchange echange) throws IOException{
+        TacheDTO tacheDTO = objectMapper.readValue(echange.getRequestBody(), TacheDTO.class);
+        Tache tache = service.ajouterTachefromDTO(tacheDTO);
+
+        TacheDTO tacheDTOAjoute = TacheMapper.toDTO(tache);
+        String reponse = objectMapper.writeValueAsString(tacheDTOAjoute);
+        echange.getResponseHeaders().set("Content-Type", "application/json");
+        echange.sendResponseHeaders(201, reponse.getBytes().length);
     }
 }

@@ -11,7 +11,7 @@ public class Tache {
     public Tache(){}; // Constructeur vide pour Jackson
 
 
-    public Tache(String nom, String description, Boolean estFait) {
+    public Tache(String nom, String description, boolean estFait) {
         this.id = ++compteur;
         this.nom = nom;
         this.description = description;

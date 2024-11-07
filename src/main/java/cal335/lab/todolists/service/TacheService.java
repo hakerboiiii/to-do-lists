@@ -3,55 +3,40 @@ import cal335.lab.todolists.dto.TacheDTO;
 import cal335.lab.todolists.mapper.TacheMapper;
 import cal335.lab.todolists.modele.Tache;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
+import java.util.Map;
+
 
 public class TacheService {
-    private List<Tache> listeTaches;
-    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private Map<Boolean, List<Tache>> listeTaches;
+
+
 
     public TacheService() {
-        this.listeTaches = new ArrayList<>();
+        this.listeTaches = new HashMap<>();
+        this.listeTaches.put(true, new ArrayList<>());
+        this.listeTaches.put(false, new ArrayList<>());
     }
 
-    public void rechercherTousLesTaches(HttpExchange echange) throws IOException {
-        String reponse = listeTaches.toString();
-        echange.getResponseHeaders().set("Content-Type", "application/json");
-        echange.sendResponseHeaders(200, reponse.getBytes().length);
+    public List<TacheDTO> rechercherTousLesTaches() {
+        List<TacheDTO> tacheDtoListe = new ArrayList<>();
 
-        try(OutputStream os = echange.getResponseBody()){
-            os.write(reponse.getBytes());
-        }
-    }
-    public void ajouterTache(HttpExchange echange) throws IOException{
-        byte[] requestCorps = echange.getRequestBody().readAllBytes();
-        String corps = new String(requestCorps);
-        Tache tache = objectMapper.readValue(corps, Tache.class);
-
-        listeTaches.add(tache);
-        String reponse = objectMapper.writeValueAsString(tache);
-        echange.getResponseHeaders().set("Content-Type", "application/json");
-        echange.sendResponseHeaders(201, reponse.getBytes().length);
-
-        try(OutputStream os = echange.getResponseBody()){
-            os.write(reponse.getBytes());
-        }
-        catch(Exception e){
-            String reponseErreur = "Invalide format. Espere Json";
-            echange.sendResponseHeaders(400, reponseErreur.getBytes().length);
-            try(OutputStream os = echange.getResponseBody()){
-                os.write(reponseErreur.getBytes());
+        for(Boolean status: listeTaches.keySet()){
+            for (Tache tache: listeTaches.get(status)){
+                TacheDTO tacheDTO = TacheMapper.toDTO(tache);
+                tacheDtoListe.add(tacheDTO);
             }
         }
+        return tacheDtoListe;
     }
+    public Tache ajouterTacheDeDTO(TacheDTO tachedto){
+        Tache tache = TacheMapper.toEntite(tachedto);
 
-    public Tache ajouterTachefromDTO(TacheDTO tacheDTO){
-        Tache tache = TacheMapper.toEntite(tacheDTO);
-        listeTaches.add(tache);
+        List<Tache> tacheList = listeTaches.get(tache.getAFaire());
+        tacheList.add(tache);
         return tache;
     }
 }

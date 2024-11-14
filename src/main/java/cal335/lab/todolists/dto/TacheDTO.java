@@ -1,8 +1,14 @@
 package cal335.lab.todolists.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TacheDTO {
 
-    private String nom, description;
+    @JsonProperty("nom")
+    private String nom;
+    @JsonProperty("description")
+    private String description;
+
+    @JsonProperty("aFaire")
     private boolean aFaire;
 
     public TacheDTO() {
